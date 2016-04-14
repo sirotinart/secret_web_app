@@ -1,0 +1,6 @@
+bin/
+node_modules/
+tmpdir/
+private/
+ia_app.sublime-project
+ia_app.sublime-workspace

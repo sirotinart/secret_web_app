@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Аккаунт</title>
+    <link rel="stylesheet" href="/css/bootstrap.css">  
+    <script src="/js/jquery-1.12.0.js"></script>
+    <script src="/js/jquery.tmpl.js"></script>
+    <script src="/js/jquery-ui.js"></script>
+    <script src="/js/bootstrap.js"></script>
+    <script src="/js/moment.js"></script>
+    <script src="/js/coupon.js"></script>
+    <script src="/js/profile.js"></script>
+</head>
+<body>
+<div>
+    <h3 class="page-header2 text-center container">
+        <table style="margin: auto">
+            <tr>
+                <td  style="width: 300px" >
+                    <a href="/account" class="navbar-link">Купоны</a>
+                </td>
+                <td style="width: 300px" >
+                    <a href="/stat" class="navbar-link">Статистика</a>
+                </td>
+                <td style="width: 300px" >
+                    <a href="/profile" class="navbar-link">Профиль</a>
+                </td>
+                <td style="width: 300px" >
+                    <a href="/logout" class="navbar-link">Выход</a>
+                </td>
+            </tr>
+        </table>
+    </h3>
+</div>
+<div class="container">
+    <h3 class="page-header2 col-md-5"> Список купонов</h3>
+</div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3 col-xs-3" >
+            <h4>Название</h4>
+        </div>
+        <div class="col-md-2 col-xs-2 text-center">
+            <h4>Дата начала продаж</h4>
+        </div>
+        <div class="col-md-2 col-xs-2 text-center">
+            <h4>Дата завершения продаж</h4>
+        </div>
+        <div class="col-md-2 col-xs-2 text-center">
+            <h4>Продано\всего</h4>
+        </div>
+        <div class="col-md-1 col-xs-1">
+
+        </div>
+        <div class="col-md-1 col-xs-1">
+   
+        </div>
+        <div class="col-md-1 col-xs-1">
+       
+        </div>
+    </div>
+<!--     <h4>
+        <table style="margin:5px auto; width: 1200px" id="tableHeader">
+            <tr>
+                <td style="width: 360px" >
+                    Название
+                </td>
+                <td class="text-center" style="width: 180px" >
+                    Дата начала продаж
+                </td>
+                <td class="text-center" style="width: 180px" >
+                    Дата завершения продаж
+                </td>
+                <td class="text-center" style="width: 180px" >
+                    Продано\всего
+                </td>
+                <td class="text-center" style="width: 100px" >
+
+                </td>
+                <td class="text-center" style="width: 100px" >
+
+                </td>
+                <td class="text-center" style="width: 100px" >
+
+                </td>
+            </tr>
+
+        </table>
+    </h4> -->
+</div>
+<div class="container-fluid">
+    <div id="table">
+    </div>
+</div>
+<script id="listTempl" type="text/x-jquery-tmpl">
+        <div class="row" style="margin: 5px" data-id="" onmouseout="$(this).css('background-color', '#ffffff')" onmouseover="$(this).css('background-color', '#D9D9D9')">
+            <div class="col-md-3 col-xs-3" onclick="showDescription($(this))">
+                ${SHORT_DESCRIPTION}
+            </div>
+            <div class="col-md-2 col-xs-2 text-center" onclick="showDescription($(this))">
+                ${CREATION_DATE}
+            </div>
+            <div class="col-md-2 col-xs-2 text-center" onclick="showDescription($(this))">
+                ${EXPIRATION_DATE}
+            </div>
+            <div class="col-md-2 col-xs-2 text-center" onclick="showDescription($(this))">
+                ${SELL_COUNT}/${COUNT}
+            </div>
+            <div class="col-md-1 col-xs-1" style="padding: 0 5px">
+                <button id="codeBtn" class="btn btn-xs btn-primary btn-block" onclick="downloadCodes($(this))">Коды</button>
+            </div>
+            <div class="col-md-1 col-xs-1" style="padding: 0 5px">
+                <button id="editBtn" class="btn btn-xs btn-primary btn-block" onclick="loadCouponData($(this))">Изменить</button>
+            </div>
+            <div class="col-md-1 col-xs-1" style="padding: 0 5px">
+                <button id="removeBtn" class="btn btn-xs btn-warning btn-block" onClick="deleteCoupon($(this))">Удалить</button>
+            </div>
+        </div>
+
+        <!-- <tr data-id="" onmouseout="$(this).css('background-color', '#ffffff')" onmouseover="$(this).css('background-color', '#D9D9D9')" >
+            <td  style="width: 360px; vertical-align: center" onclick="showDescription($(this))">
+                ${SHORT_DESCRIPTION}
+            </td>
+            <td class="text-center" style="width: 180px; vertical-align: middle;" >
+                ${CREATION_DATE}
+            </td>
+            <td class="text-center" style="width: 180px; vertical-align: middle" >
+                ${EXPIRATION_DATE}
+            </td>
+            <td  class="text-center" style="width: 180px; vertical-align: middle" >
+                ${SELL_COUNT}/${COUNT}
+            </td>
+            <td class="text-center" style="width: 100px; vertical-align: middle" >
+                <button id="codeBtn" class="btn btn-xs btn-primary btn-block" onclick="downloadCodes($(this))">Коды</button>
+            </td>
+            <td class="text-center" style="width: 100px;" >
+                <button id="editBtn" class="btn btn-xs btn-primary btn-block" onclick="loadCouponData($(this))">Изменить</button>
+            </td>
+            <td class="text-center" style="width: 100px;" >
+                <button id="removeBtn" class="btn btn-xs btn-warning btn-block" onClick="deleteCoupon($(this))">Удалить</button>
+            </td>
+        </tr> -->
+</script>
+<div class="text-warning text-center" style="margin: auto" id="log1"></div>
+<div class="container">
+    <!--<form id="newCoupon" action="/addcoupon" method="get">-->
+        <!--<button class="btn btn-lg btn-primary btn-block" style="margin: auto;  width: 20%"  onclick="newCoupon()">Добавить купон в систему</button>-->
+    <!--</form>-->
+    <a class="btn btn-lg btn-primary btn-block center-block" style="width: 50%; margin-top: 10px" href="/addcoupon">Добавить купон в систему</a>
+</div>
+
+<div class="panel-footer text-center" style="margin-top: 10px">
+    Copyright © 2016 /dev/null. All rights reserved.
+</div>
+
+
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h4 class="modal-title"></h4>
+            </div>
+            <div class="modal-body">
+                <div class="center-block" style="width: 70%">
+                    <img scc="" id="promoImg" class="img-responsive center-block">
+                </div>
+                <h4>Описание купона:</h4>
+                <div id="couponDescription"></div>
+                <h4>Скидка по купону:</h4>
+                <div id="couponDiscount"></div>
+                <h4>Стоимость со скидкой:</h4>
+                <div id="couponPrice"></div>
+                <h4>Стоимость без скидки:</h4>
+                <div id="couponFullPrice"></div>
+                <h4>Адреса магазинов, принимающих купоны:</h4>
+                <textarea class="input-lg form-control" id="couponShops" readonly="" style="resize: none; height: 100px"></textarea>
+            </div>
+        </div>
+      
+    </div>
+</div>
+
+<div class="modal fade" id="modal2" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+              <h4 class="modal-title">Редактирование купона</h4>
+            </div>
+            <div class="modal-body">
+                <form id="dataForm" action="/updateCoupon" method="post" encType="multipart/form-data">
+                    <table style="margin: auto; width: 500px" id="table">
+                        <tr>
+                            <td>
+                                <div class="text-info" style="margin: 5px">Краткое наименование купона:</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td >
+                                <input type="text" id="shortDescr" name="shortDescr" class="input-lg"  style="width: 100%; margin: 5px" placeholder='Скидка 5% на все товары в магазинах "Купи-продай"'>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="text-warning" style="margin: 5px" id="add1"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="text-info" style="margin: 5px">Полное описание акции:</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <textarea class="input-lg" id="fullDescr" name="fullDescr" rows="10" style="width: 100%; margin: 5px" placeholder='Только в этом месяце в магазинах сети "Купи-продай" при предъявлении купона действуют скидки 5% на все товары!'></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="text-warning" style="margin: 5px" id="add2"> </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="text-info" style="margin: 5px">Полная цена товара\услуги:</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="number" min="1" max="100000" class="input-lg" id="fullPrice" name="fullPrice" style="width: 100%; margin: 5px" placeholder="1000">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="text-warning" style="margin: 5px" id="add7"> </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <table style="margin: auto; width: 500px" id="table2">
+                                    <tr>
+                                        <td style="width:50%">
+                                            <div class="text-info" style="margin: 5px">Стоимость купона(руб):</div>
+                                        </td>
+                                        <td style="width:50%">
+                                            <div class="text-info" style="margin: 5px">Размер скидки по купону(%):</div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:50%">
+                                            <input type="number" id="price" name="price" min="0" max="100000"  class="input-lg" style="width: 100%; margin: 5px;" placeholder="250">
+                                        </td>
+                                        <td style="width:50%">
+                                            <input type="number" id="discount" name="discount" min="0" max="100"  class="input-lg" style="width: 100%; margin: 5px;" placeholder="50">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="text-warning" style="margin: 5px" id="add3"> </div>
+                                        </td>
+                                        <td>
+                                            <div class="text-warning" style="margin: 5px" id="add4"> </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="text-info" style="margin: 5px">Дата начала акции:</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="date" class="input-lg" id="crDate" name="crDate" style="width: 100%; margin: 5px">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="text-warning" style="margin: 5px" id="add8"> </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="text-info" style="margin: 5px">Дата завершения акции:</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="date" class="input-lg" id="expDate" name="expDate" style="width: 100%; margin: 5px">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="text-warning" style="margin: 5px" id="add5"> </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="text-info" style="margin: 5px">Количество создаваемых купонов:</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="number" min="1" max="100000" class="input-lg" id="couponsCount" name="couponsCount" style="width: 100%; margin: 5px" placeholder="100">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="text-warning" style="margin: 5px" id="add6"> </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="text-info" style="margin: 5px">Промо-изображение акции:</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="input-group" style="width: 100%; margin: 5px">
+                                    <span class="input-group-btn">
+                                        <span class="btn btn-lg btn-primary btn-file">
+                                            Выбрать <input type="file" name="img">
+                                        </span>
+                                    </span>
+                                    <input type="text" class="form-control input-lg" name="promoImg" readonly="">
+                                </div>
+                            </td>
+                        </tr>       
+                        <tr>
+                            <td>
+                                <div class="text-warning" style="margin: 5px" id="add"> </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <button type="submit" class="btn btn-lg btn-primary btn-block" style="margin: 5px;">Сохранить изменения</button>
+                            </td>
+                        </tr>
+                        <tr style="visibility: hidden;">
+                            <td>
+                                <input type="text" id="couponId" name="couponId">
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        loadCoupons();
+//        $('[data-id]').mouseover(function(){
+//            $(this).css('background-color', '#004080');
+//        });
+
+//        $("data-id").mouseout(function(){
+//            $(this).css('background-color', '#b3d9ff');
+//        });
+    })
+</script>
+</body>
+</html>

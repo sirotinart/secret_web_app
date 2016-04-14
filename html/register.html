@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Регистрация</title>
+    <link rel="stylesheet" href="/css/bootstrap.css">
+    <link rel="stylesheet" href="/css/jquery-ui.css">
+    <script src="/js/register.js"></script>
+    <script src="/js/jquery-1.12.0.js"></script>
+    <script src="/js/jquery-ui.js"></script>
+</head>
+<body>
+<div><h3 class="page-header2 text-center container">Регистрация</h3></div>
+    <div class="container">
+        <table style="margin: auto; width: 500px" id="table">
+            <tr>
+                <td>
+                    <div class="text-info" style="margin: 5px">Введите регистрационный код:</div>
+                </td>
+            </tr>
+            <tr>
+                <td >
+                    <input type="text" id="regCode" name="regCode" class="input-lg form-control"  style="width: 100%; margin: 5px" placeholder="1234567890234">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="text-warning" style="margin: 5px" id="reg1"></div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="text-info" style="margin: 5px">Введите название организации:</div>
+                </td>
+            </tr>
+            <tr>
+                <td >
+                    <input type="text" id="regName" name="regCode" class="input-lg form-control"  style="width: 100%; margin: 5px" placeholder='Сеть магазинов "Шекель"'>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="text-warning" style="margin: 5px" id="reg5"></div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="text-info" style="margin: 5px">Введите пароль:</div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="password" id="password" name="password" class="input-lg form-control"  style="width: 100%; margin: 5px">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="text-warning" style="margin: 5px" id="reg2"> </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="text-info" style="margin: 5px">Повторите пароль:</div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="password" id="passwordRepeat" name="passwordRepeat"  class="input-lg form-control"  style="width: 100%; margin: 5px">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="text-warning" style="margin: 5px" id="reg3"> </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="text-info" style="margin: 5px">Введите город:</div>
+                </td>
+            </tr>
+            <tr>
+                <td >
+                    <input type="text" id="regCity" class="input-lg dropdown form-control"  style="width: 100%; margin: 5px" placeholder="Москва">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="text-warning" style="margin: 5px" id="reg4"> </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <button class="btn btn-lg btn-primary btn-block" style="margin: 5px;"  onclick="registration()">Зарегистрироваться</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+<div class="panel-footer text-center" style="margin-top: 10px">
+    Copyright © 2016 /dev/null. All rights reserved.
+</div>
+<script>
+    $(document).ready(function(){
+        $.get('/getCities', function(responce){
+            if(responce['sucsess']===true)
+            {
+                $('#regCity').autocomplete({source: responce.cities});
+            }
+        })
+    });
+</script>
+</body>
+</html>

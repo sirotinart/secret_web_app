@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Статистика</title>
+    <link rel="stylesheet" href="/css/bootstrap.css">
+    <script src="/js/coupon.js"></script>
+    <script src="/js/jquery-1.12.0.js"></script>
+</head>
+<body>
+<div>
+    <h3 class="page-header2 text-center container">
+        <table style="margin: auto">
+            <tr>
+                <td  style="width: 300px" >
+                    <a href="/account" class="navbar-link">Купоны</a>
+                </td>
+                <td style="width: 300px" >
+                    <a href="/stat" class="navbar-link">Статистика</a>
+                </td>
+                <td style="width: 300px" >
+                    <a href="/profile" class="navbar-link">Профиль</a>
+                </td>
+                <td style="width: 300px" >
+                    <a href="/logout" class="navbar-link">Выход</a>
+                </td>
+            </tr>
+        </table>
+    </h3>
+</div>
+
+<div class="container">
+    <h3 class="page-header2"> Информация о пользователе</h3>
+</div>
+<div class="container">
+    <div class="panel panel-primary">
+    <div class="panel-heading">Информация о пользователе</div>
+    <div class="panel-body" id="userInfo">
+        <div class="col-md-8 col-xs-8">
+            <div class="row" style="margin: 5px 0">
+            <div class="col-md-5 col-xs-5">Регистрационный код:</div>
+            <div class="col-md-7 col-xs-7">534343467768678</div>
+            </div>
+            <div class="row" style="margin: 5px 0">
+                <div class="col-md-5 col-xs-5">Название организации:</div>
+                <div class="col-md-7 col-xs-7">ООО "Рога и Копыта"</div>
+            </div>
+            <div class="row" style="margin: 5px 0"> 
+                <div class="col-md-5 col-xs-5">Город:</div>
+                <div class="col-md-7 col-xs-7">Иваново</div>
+            </div>
+            <form action="/uploadAvatar" method="post" encType="multipart/form-data">
+                <div class="row" style="margin: 5px 0">
+                    <div class="col-md-5 col-xs-5">
+                        <button type="submit" class="btn btn-primary btn-upload">Загрузить изображение профиля</button>
+                    </div>
+                    <div class="col-md-7 col-xs-7">
+                        <div class="input-group">
+                            <span class="input-group-btn">
+                                <span class="btn btn-primary btn-file">
+                                    Browse <input type="file" name="avatar">
+                                </span>
+                            </span>
+                            <input type="text" class="form-control" readonly>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-4 col-xs-4">
+            <img src="" alt="" class="img-responsive">
+        </div>
+    </div>
+</div>
+</div>
+<div class="panel-footer text-center" style="margin-top: 10px">
+    Copyright © 2016 /dev/null. All rights reserved.
+</div>
+</body>
+</html>

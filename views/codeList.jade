@@ -1,0 +1,34 @@
+//Created by art on 06.03.16.
+
+doctype html
+html(lang='en')
+    head
+        meta(charset='UTF-8')
+        title Статистика
+        link(rel='stylesheet', href='/css/bootstrap.css')
+        script(src='/js/coupon.js')
+        script(src='/js/jquery-1.12.0.js')
+    body
+        div
+            h3.page-header2.text-center.container
+                table(style='margin: auto')
+                    tr
+                        td(style='width: 300px')
+                            a.navbar-link(href='/account') Купоны
+                        td(style='width: 300px')
+                            a.navbar-link(href='/stat') Статистика
+                        td(style='width: 300px')
+                            a.navbar-link(href='/logout') Выход
+        .container.page-header2
+            h4
+                table#tableHeader(style='margin:5px auto')
+                    tr
+                        td.text-center= name
+         a.btn.btn.btn-primary.btn-block(style='margin: auto;  width: 20%; margin-top: 10px', href=downloadLink) Скачать файлом
+        .container
+            table#table(style='margin: 5px auto;')
+                -for row in rows
+                    tr
+                        td.text-center=row['CODE']
+        .panel-footer.text-center(style='margin-top: 10px')
+            | Copyright © 2016 /dev/null. All rights reserved.
