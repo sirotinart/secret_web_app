@@ -2,9 +2,10 @@
  * Created by art on 05.03.16.
  */
 var express = require('express');
-var recorder=require('../register');
-var loginMgr=require('../loginMgr');
-var dataMgr=require('../dataMgr');
+var regMgr=require('../modules/regMgr');
+var loginMgr=require('../modules/loginMgr');
+var dataMgr=require('../modules/dataMgr');
+
 var router = express.Router();
 
 var options = {

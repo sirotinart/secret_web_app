@@ -1,7 +1,7 @@
 var express = require('express');
-var recorder=require('../register');
-var loginMgr=require('../loginMgr');
-var dataMgr=require('../dataMgr');
+var regMgr=require('../modules/regMgr');
+var loginMgr=require('../modules/loginMgr');
+var dataMgr=require('../modules/dataMgr');
 const fs = require('fs');
 var path = require('path');
 var multipart = require('connect-multiparty');
@@ -33,7 +33,7 @@ router.get('/private/codes',function(req, res, next){
     console.log('trying to acess private!');
 });
 
-router.post('/register', recorder.checkCity, recorder.checkUser,recorder.saveUser);
+router.post('/register', regMgr.checkCity, regMgr.checkUser,regMgr.saveUser);
 
 router.post('/login', function(req,res,next){
     console.log('login request');
@@ -316,7 +316,7 @@ router.get('/getUserInfo', dataMgr.getUserInfo, function(req,res){
     }
 });
 
-router.post('/registerUser', recorder.registerUser, function (req, res){
+router.post('/registerUser', regMgr.registerUser, function (req, res){
     res.send(req.response);
 });
 
