@@ -6,29 +6,30 @@ html(lang='en')
         meta(charset='UTF-8')
         title Статистика
         link(rel='stylesheet', href='/css/bootstrap.css')
-        script(src='/js/coupon.js')
         script(src='/js/jquery-1.12.0.js')
+        script(src='/js/coupon.js')
+        script(src='/js/session.js')
     body
-        div
+        div.container
             h3.page-header2.text-center.container
-                table(style='margin: auto')
-                    tr
-                        td(style='width: 300px')
-                            a.navbar-link(href='/account') Купоны
-                        td(style='width: 300px')
-                            a.navbar-link(href='/stat') Статистика
-                        td(style='width: 300px')
-                            a.navbar-link(href='/logout') Выход
+                div.row
+                    div.col-md-3.col.xs-3
+                        a.navbar-link(href='/account') Купоны
+                    div.col-md-3.col.xs-3
+                        a.navbar-link(href='/stat') Статистика
+                    div.col-md-3.col.xs-3
+                        a.navbar-link(href='/profile') Профиль
+                    div.col-md-3.col.xs-3
+                        a.navbar-link(onClick='logout()') Выход
         .container.page-header2
             h4
                 table#tableHeader(style='margin:5px auto')
                     tr
-                        td.text-center= name
-         a.btn.btn.btn-primary.btn-block(style='margin: auto;  width: 20%; margin-top: 10px', href=downloadLink) Скачать файлом
+                        td.text-center(id='couponName')
+         a.btn.btn.btn-primary.btn-block(style='margin: auto;  width: 20%; margin-top: 10px', id='downloadBtn') Скачать файлом
         .container
-            table#table(style='margin: 5px auto;')
-                -for row in rows
-                    tr
-                        td.text-center=row['CODE']
+            table#codesList(style='margin: 5px auto;' data-id=couponId)
         .panel-footer.text-center(style='margin-top: 10px')
             | Copyright © 2016 /dev/null. All rights reserved.
+        script(type='text/javascript').
+            $(document).ready(loadCodes());

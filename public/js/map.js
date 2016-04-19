@@ -44,14 +44,14 @@ function init(){
 
   	myMap.geoObjects.add(myCollection);
 
-  	$.get('/getUserInfo', function (response){
+  	$.get('/api/profile', function (response){
 		if(response.sucsess===false)
 		{
 			window.location=response.redirectUrl;
 		}
 		else
 		{
-			var city=ymaps.geocode(response.orgCity, {kind: 'locality'});
+			var city=ymaps.geocode(response.data.CITY, {kind: 'locality'});
 			city.then(
 				function (res){
 					myMap.setCenter(res.geoObjects.get(0).geometry.getCoordinates());

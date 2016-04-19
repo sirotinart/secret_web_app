@@ -3,79 +3,9 @@
  */
 
 
-// function sendNewCoupon(url)
-// {
-//     var data={};
-//     data['shortDescr']=document.getElementById('shortDescr').valueOf().value;
-//     data['fullDescr']=document.getElementById('fullDescr').valueOf().value;
-//     data['price']=document.getElementById('price').valueOf().value;
-//     data['discount']=document.getElementById('discount').valueOf().value;
-//     data['expDate']=document.getElementById('expDate').valueOf().value;
-//     data['crDate']=document.getElementById('crDate').valueOf().value;
-//     data['count']=document.getElementById('couponsCount').valueOf().value;
-//     data['fullPrice']=document.getElementById('fullPrice').valueOf().value;
-//     if(url==='/updateCoupon')
-//     {
-//         data['couponId']=document.getElementById('couponId').valueOf().value;
-//     }
-//     console.log(typeof (data['shortDescr']), typeof (data['fullDescr']), typeof (data['price']), typeof (data['discout']), typeof (data['expDate']), typeof (data['count']));
-
-//     console.log('lol');
-//     $.post(url, data, function (response){
-//         if(response['success']==true)
-//         {
-//             window.location=response.redirectUrl;
-//         }
-//         else
-//         {
-//             if(typeof (response.errorText)!== 'undefined')
-//             {
-//                 document.getElementById('add').innerHTML=response.errorText;
-//             }
-//             if(typeof (response.errorText1)!== 'undefined')
-//             {
-//                 document.getElementById('add1').innerHTML=response.errorText1;
-//             }
-//             if(typeof (response.errorText2)!== 'undefined')
-//             {
-//                 document.getElementById('add2').innerHTML=response.errorText2;
-//             }
-//             if(typeof (response.errorText3)!== 'undefined')
-//             {
-//                 document.getElementById('add3').innerHTML=response.errorText3;
-//             }
-//             if(typeof (response.errorText4)!== 'undefined')
-//             {
-//                 document.getElementById('add4').innerHTML=response.errorText4;
-//             }
-//             if(typeof (response.errorText5)!== 'undefined')
-//             {
-//                 document.getElementById('add5').innerHTML=response.errorText5;
-//             }
-//             if(typeof (response.errorText6)!== 'undefined')
-//             {
-//                 document.getElementById('add6').innerHTML=response.errorText6;
-//             }
-//             if(typeof (response.errorText7)!== 'undefined')
-//             {
-//                 document.getElementById('add7').innerHTML=response.errorText7;
-//             }
-//             if(typeof (response.errorText8)!== 'undefined')
-//             {
-//                 document.getElementById('add8').innerHTML=response.errorText8;
-//             }
-
-//         }
-
-//     })
-// }
-
-
-
-
 function loadCoupons()
 {
-    $.post('/getCouponList', function(response){
+    $.get('/api/coupons/list', function(response){
         if(response.success===true)
         {
             var i=0;
@@ -87,15 +17,13 @@ function loadCoupons()
         }
         else
         {
-            if(data.errorType==='not authorized')
+            if(data.errorText==='Не авторизован')
             {
                 window.location=data.redirectUrl;
             }
-            console.log('Пичалька=\\');
+            // console.log('Пичалька=\\');
         }
-
-    })
-
+    });
 }
 
 function lol(atr)
@@ -106,37 +34,42 @@ function lol(atr)
 function downloadCodes(btn)
 {
     var couponId=btn.parent().parent().attr('data-id');
-    window.location='/getCodeList?couponId='+couponId;
+    window.location='/codes/'+couponId;
 
 }
 
 function deleteCoupon(btn)
 {
     var couponId=btn.parent().parent().attr('data-id');
-    $.post('/deleteCoupon', {couponId: couponId}, function(response) {
-        if(response.success===true)
-        {
-            window.location=response.redirectUrl;
-        }
-        else
-        {
-            if(typeof (response['errorType'])!=='undefined' && response['errorType']==='not authorized')
+    $.ajax({
+        type: 'DELETE',
+        url:'/api/coupons/'+couponId,
+        data: {couponId:couponId},
+        success: function(response){
+            if(response.success===true)
             {
                 window.location=response.redirectUrl;
             }
             else
             {
-                document.getElementById('log1').innerHTML=response['errortext'];
+                if(typeof (response.errorText!=='undefined') && response.errorText==='Не авторизован')
+                {
+                    window.location=response.redirectUrl;
+                }
+                else
+                {
+                    $('#log1').html(response.errorText);
+                }
             }
         }
-    })
+    });
 }
 
 
 function showDescription(coupon)
 {
     var couponId=coupon.parent().attr('data-id');
-    $.post('/getCouponInfo', {couponId: couponId}, function(response){
+    $.get('/api/coupons/'+couponId, function(response){
         if(response.success===true)
         {
             $("#myModal").find(".modal-title").text(response.data['SHORT_DESCRIPTION'])
@@ -150,7 +83,7 @@ function showDescription(coupon)
         }
         else
         {
-            document.getElementById('log1').innerHTML=response['errortext'];
+            $('#log1').html(response.errorText);
         }
     });
 }
@@ -158,7 +91,7 @@ function showDescription(coupon)
 function loadCouponData(btn)
 {
     var couponId=btn.parent().parent().attr('data-id');
-    $.post('/getCouponInfo', {couponId: couponId}, function(response){
+    $.get('/api/coupons/'+couponId, function(response){
         if(response.success===true)
         {
             var crDate=moment(response.data['CREATION_DATE']);
@@ -172,11 +105,12 @@ function loadCouponData(btn)
             $("#modal2").find('#expDate').val(expDate.format('YYYY-MM-DD'));
             $("#modal2").find('#couponsCount').val(response.data['COUNT']);
             $("#modal2").find('#couponId').val(response.data['COUPON_ID']);
+            $("#modal2").find('#dataForm').attr('action', '/api/coupons/'+response.data['COUPON_ID']);
             $("#modal2").modal();
         }
         else
         {
-            document.getElementById('log1').innerHTML=response['errortext'];
+            $('#log1').html(response.errorText);
         }
     });
 }
@@ -187,7 +121,7 @@ $(document).ready(function (e) {
         var formData = new FormData(this);
 
         $.ajax({
-            type:'POST',
+            type:$(this).attr('method'),
             url: $(this).attr('action'),
             data:formData,
             cache:false,
@@ -200,47 +134,16 @@ $(document).ready(function (e) {
                 }
                 else
                 {
-                    if(typeof (response.errorText)!== 'undefined')
+                    if(typeof(response.errors)!=='undefined')
                     {
-                        document.getElementById('add').innerHTML=response.errorText;
+                        response.errors.forEach(function(item, i, arr){
+                            if(item.length)
+                            {
+                                var id='#err'+(i+1);
+                                $(id).html(item);
+                            }
+                        })
                     }
-                    if(typeof (response.errorText1)!== 'undefined')
-                    {
-                        document.getElementById('add1').innerHTML=response.errorText1;
-                    }
-                    if(typeof (response.errorText2)!== 'undefined')
-                    {
-                        document.getElementById('add2').innerHTML=response.errorText2;
-                    }
-                    if(typeof (response.errorText3)!== 'undefined')
-                    {
-                        document.getElementById('add3').innerHTML=response.errorText3;
-                    }
-                    if(typeof (response.errorText4)!== 'undefined')
-                    {
-                        document.getElementById('add4').innerHTML=response.errorText4;
-                    }
-                    if(typeof (response.errorText5)!== 'undefined')
-                    {
-                        document.getElementById('add5').innerHTML=response.errorText5;
-                    }
-                    if(typeof (response.errorText6)!== 'undefined')
-                    {
-                        document.getElementById('add6').innerHTML=response.errorText6;
-                    }
-                    if(typeof (response.errorText7)!== 'undefined')
-                    {
-                        document.getElementById('add7').innerHTML=response.errorText7;
-                    }
-                    if(typeof (response.errorText8)!== 'undefined')
-                    {
-                        document.getElementById('add8').innerHTML=response.errorText8;
-                    }
-                    if(typeof (response.errorText9)!== 'undefined')
-                    {
-                        document.getElementById('add').innerHTML=response.errorText9;
-                    }
-
                 }
             },
             error: function(response){
@@ -249,8 +152,19 @@ $(document).ready(function (e) {
             }
         });
     }));
-
-    // $("#ImageBrowse").on("change", function() {
-    //     $("#imageUploadForm").submit();
-    // });
 });
+
+function loadCodes()
+{
+    var couponId=$('#codesList').attr('data-id');
+    $.get('/api/coupons/'+couponId+'/codes', function (response){
+        if(response.success===true)
+        {
+            $('#couponName').html(response.name);
+            $('#downloadBtn').attr('href', response.downloadLink);
+            response.codes.forEach(function(item, i ,arr){
+                $('#codesList').append("<tr><td class='text-center'>"+item.CODE+"</td></tr>");
+            });
+        }
+    })
+}

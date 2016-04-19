@@ -11,28 +11,25 @@
     <script src="/js/map.js"></script>
 </head>
 <body>
-<div>
+<div class="container">
     <h3 class="page-header2 text-center container">
-        <table style="margin: auto">
-            <tr>
-                <td  style="width: 300px" >
-                    <a href="/account" class="navbar-link">Купоны</a>
-                </td>
-                <td style="width: 300px" >
-                    <a href="/stat" class="navbar-link">Статистика</a>
-                </td>
-                <td style="width: 300px" >
-                    <a href="/profile" class="navbar-link">Профиль</a>
-                </td>
-                <td style="width: 300px" >
-                    <a href="/logout" class="navbar-link">Выход</a>
-                </td>
-            </tr>
-        </table>
+        <div class="row">
+            <div class="col-md-3 col-xs-3">
+                <a href="/account" class="navbar-link">Купоны</a>
+            </div>
+            <div class="col-md-3 col-xs-3">
+                <a href="/stat" class="navbar-link">Статистика</a>
+            </div>
+            <div class="col-md-3 col-xs-3">
+                <a href="/profile" class="navbar-link">Профиль</a>
+            </div>
+            <div class="col-md-3 col-xs-3">
+                <a onClick="logout()" class="navbar-link">Выход</a>
+            </div>
+        </div>
     </h3>
-
 </div>
-<form id="dataForm" action="/addNewCoupon" method="post" encType="multipart/form-data">
+<form id="dataForm" action="/api/coupons" method="post" encType="multipart/form-data">
     <div class="container">
         <table style="margin: auto;" id="table">
             <tr style="height: 50px">
@@ -46,12 +43,12 @@
                 <td>
                     <div class="text-info" style="margin: 5px">Краткое наименование купона:</div>
                     <input type="text" id="shortDescr" name="shortDescr" class="input-lg form-control"  style="width: 100%; margin: 5px" placeholder='Скидка 5% на все товары в магазинах "Купи-продай"'>
-                    <div class="text-warning" style="margin: 5px; height: 20px" id="add1"></div>
+                    <div class="text-warning" style="margin: 5px; height: 20px" id="err1"></div>
                 </td>
                 <td rowspan="3" style="vertical-align: top; height: 300px">
                     <div class="text-info" style="margin: 5px; margin-left: 20px">Полное описание акции:</div>
                     <textarea class="input-lg form-control" id="fullDescr" name="fullDescr" style="height: 263px; width: 100%; margin:5px; margin-left: 20px; resize: none;" placeholder='Только в этом месяце в магазинах сети "Купи-продай" при предъявлении купона действуют скидки 5% на все товары!'></textarea>
-                    <div class="text-warning" style="margin: 5px; margin-left: 20px; height: 20px" id="add2"> </div>
+                    <div class="text-warning" style="margin: 5px; margin-left: 20px; height: 20px" id="err2"></div>
                     
                 </td>
             </tr>
@@ -60,7 +57,7 @@
                 <td>
                     <div class="text-info" style="margin: 5px">Полная цена товара\услуги:</div>
                     <input type="number" min="1" max="100000" class="input-lg form-control" id="fullPrice" name="fullPrice" style="width: 100%; margin: 5px" placeholder="1000">
-                    <div class="text-warning" style="margin: 5px; height: 20px" id="add7"> </div>
+                    <div class="text-warning" style="margin: 5px; height: 20px" id="err3"> </div>
                 </td>
             </tr>
 
@@ -72,12 +69,12 @@
                             <td style="width:50%">
                                 <div class="text-info" style="margin: 5px">Стоимость купона(руб):</div>
                                 <input type="number" id="price" name="price" min="0" max="100000"  class="input-lg form-control"  style="width: 100%; margin: 5px" placeholder="250">
-                                <div class="text-warning" style="margin: 5px; height: 20px" id="add3"> </div>
+                                <div class="text-warning" style="margin: 5px; height: 20px" id="err4"> </div>
                             </td>
                             <td style="width:50%">
                                 <div class="text-info" style="margin: 5px">Размер скидки по купону(%):</div>
                                 <input type="number" id="discount" name="discount" min="0" max="100"  class="input-lg form-control"  style="width: 100%; margin: 5px" placeholder="50">
-                                <div class="text-warning" style="margin: 5px; height: 20px" id="add4"> </div>
+                                <div class="text-warning" style="margin: 5px; height: 20px" id="err5"> </div>
                             </td>
                         </tr>
 
@@ -89,12 +86,12 @@
                 <td>
                     <div class="text-info" style="margin: 5px">Дата начала акции:</div>
                     <input type="date" class="input-lg form-control" id="crDate" name="crDate" style="width: 100%; margin: 5px">
-                    <div class="text-warning" style="margin: 5px; height: 20px" id="add8"> </div>
+                    <div class="text-warning" style="margin: 5px; height: 20px" id="err6"> </div>
                 </td>
                 <td>
                     <div class="text-info" style="margin: 5px; margin-left: 20px">Количество создаваемых купонов:</div>
                     <input type="number" min="1" max="100000" class="input-lg form-control" id="couponsCount" name="couponsCount" style="width: 100%; margin: 5px; margin-left: 20px" placeholder="100">
-                    <div class="text-warning" style="margin: 5px; margin-left: 20px; height: 20px" id="add6"> </div>
+                    <div class="text-warning" style="margin: 5px; margin-left: 20px; height: 20px" id="err8"> </div>
                 </td>
             </tr>
 
@@ -102,7 +99,7 @@
                 <td>
                     <div class="text-info" style="margin: 5px">Дата завершения акции:</div>
                     <input type="date" class="input-lg form-control" id="expDate" name="expDate" style="width: 100%; margin: 5px">
-                    <div class="text-warning" style="margin: 5px; height: 20px" id="add5"> </div>
+                    <div class="text-warning" style="margin: 5px; height: 20px" id="err7"> </div>
                 </td>
                 <td>
                     <div class="text-info" style="margin: 5px; margin-left: 20px">Промо-изображение акции:</div>
@@ -114,7 +111,7 @@
                         </span>
                         <input type="text" class="form-control input-lg" name="promoImg" readonly="">
                     </div>
-                    <div class="text-warning" style="margin: 5px; margin-left: 20px; height: 20px" id="add10"> </div>
+                    <div class="text-warning" style="margin: 5px; margin-left: 20px; height: 20px" id="err10"> </div>
                 </td>
             </tr>
             <tr>
@@ -129,7 +126,7 @@
             </tr>             
             <tr>
                 <td>
-                    <div class="text-warning" style="margin: 5px; height: 20px" id="add"> </div>
+                    <div class="text-warning" style="margin: 5px; height: 20px" id="err9"> </div>
                 </td>
             </tr>
             <tr>

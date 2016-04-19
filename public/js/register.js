@@ -12,85 +12,60 @@ function registration()
 
     if(!regCode || regCode.value.length===0)
     {
-        document.getElementById('reg1').innerHTML='Код не может быть пустым!';
+        $('#reg1').html('Код не может быть пустым!');
         return;
     }
 
-    if(!password || password.value.length===0)
+    if(!password || password.value.length<4 || password.value.length>10)
     {
-        document.getElementById('reg2').innerHTML='Пароль не может быть пустым!';
+        $('#reg3').html('Пароль должен быть от 5 до 9 символов!');
         return;
     }
 
     if(password.value!==passwordRepeat.value)
     {
-        document.getElementById('reg3').innerHTML='Пароли не совпадают!';
+        $('#reg4').html('Пароли не совпадают!');
         return;
     }
 
     if(city.value.length===0)
     {
-        document.getElementById('reg4').innerHTML='Поле не может быть пустым!';
+        $('#reg5').html('Поле не может быть пустым!');
         return;
     }
 
     if(name.value.length===0)
     {
-        document.getElementById('reg5').innerHTML='Поле не может быть пустым!';
+        $('#reg2').html('Поле не может быть пустым!');
         return;
     }
 
 
-    $.post('/register',{regCode:regCode.value, password:password.value, city:city.value, name:name.value},function(data) {
+    $.post('/api/sellers',{regCode:regCode.value, password:password.value, city:city.value, name:name.value},function(response) {
         console.log('in responseHandler');
-        if(data['error']===true)
+        if(response.success===false)
         {
-            if(data['errorCode']===1)
-            {
-                document.getElementById('reg1').innerHTML=data['errorText'];
-            }
-            if(data['errorCode']===2)
-            {
-                document.getElementById('reg4').innerHTML=data['errorText'];
-            }
-            if(data['errorCode']===3)
-            {
-                document.getElementById('reg4').innerHTML=data['errorText'];
-            }
-            if(data['errorCode']===4)
-            {
-                if(data['errorCode']===3)
-                {
-                    document.getElementById('reg5').innerHTML=data['errorText'];
-                }
+            if(!typeof(response.errors[0])!=='undefined' && response.errors[0].length){
+                $('#reg1').html(response.errors[0]);
             }
 
+            if(!typeof(response.errors[1])!=='undefined' && response.errors[1].length){
+                $('#reg2').html(response.errors[1]);
+            }
+
+            if(!typeof(response.errors[2])!=='undefined' && response.errors[2].length){
+                $('#reg3').html(response.errors[2]);
+            }
+
+            if(!typeof(response.errors[3])!=='undefined' && response.errors[3].length){
+                $('#reg5').html(response.errors[3]);
+            }
         }
         else
         {
             window.location='/';
         }
-
-
-
     });
-
-
-    //var xhr = new XMLHttpRequest();
-    //
-    //var body = 'regCode=' + encodeURIComponent(regCode.value) +
-    //    '&password=' + encodeURIComponent(password.value);
-    //
-    //xhr.open("POST", '/register', true)
-    //xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
-    //
-    ////xhr.onreadystatechange = ...;
-    //
-    //xhr.send(body);
 }
 
-function responseHandler(data)
-{
-    console.log('in responseHandler');
-}
 

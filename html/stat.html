@@ -9,24 +9,22 @@
 </head>
 <body>
 <body>
-<div>
+<div class="container">
     <h3 class="page-header2 text-center container">
-        <table style="margin: auto">
-            <tr>
-                <td  style="width: 300px" >
-                    <a href="/account" class="navbar-link">Купоны</a>
-                </td>
-                <td style="width: 300px" >
-                    <a href="/stat" class="navbar-link">Статистика</a>
-                </td>
-                <td style="width: 300px" >
-                    <a href="/profile" class="navbar-link">Профиль</a>
-                </td>
-                <td style="width: 300px" >
-                    <a href="/logout" class="navbar-link">Выход</a>
-                </td>
-            </tr>
-        </table>
+        <div class="row">
+            <div class="col-md-3 col-xs-3">
+                <a href="/account" class="navbar-link">Купоны</a>
+            </div>
+            <div class="col-md-3 col-xs-3">
+                <a href="/stat" class="navbar-link">Статистика</a>
+            </div>
+            <div class="col-md-3 col-xs-3">
+                <a href="/profile" class="navbar-link">Профиль</a>
+            </div>
+            <div class="col-md-3 col-xs-3">
+                <a onClick="logout()" class="navbar-link">Выход</a>
+            </div>
+        </div>
     </h3>
 </div>
 <div class="panel-footer text-center" style="margin-top: 10px">

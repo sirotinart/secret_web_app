@@ -40,7 +40,7 @@
             </tr>
             <tr>
                 <td>
-                    <div class="text-warning" style="margin: 5px" id="reg5"></div>
+                    <div class="text-warning" style="margin: 5px" id="reg2"></div>
                 </td>
             </tr>
             <tr>
@@ -55,7 +55,7 @@
             </tr>
             <tr>
                 <td>
-                    <div class="text-warning" style="margin: 5px" id="reg2"> </div>
+                    <div class="text-warning" style="margin: 5px" id="reg3"> </div>
                 </td>
             </tr>
             <tr>
@@ -70,7 +70,7 @@
             </tr>
             <tr>
                 <td>
-                    <div class="text-warning" style="margin: 5px" id="reg3"> </div>
+                    <div class="text-warning" style="margin: 5px" id="reg4"> </div>
                 </td>
             </tr>
             <tr>
@@ -85,7 +85,7 @@
             </tr>
             <tr>
                 <td>
-                    <div class="text-warning" style="margin: 5px" id="reg4"> </div>
+                    <div class="text-warning" style="margin: 5px" id="reg5"> </div>
                 </td>
             </tr>
             <tr>
@@ -100,10 +100,10 @@
 </div>
 <script>
     $(document).ready(function(){
-        $.get('/getCities', function(responce){
-            if(responce['sucsess']===true)
+        $.get('/api/cities', function(response){
+            if(response.success===true)
             {
-                $('#regCity').autocomplete({source: responce.cities});
+                $('#regCity').autocomplete({source: response.cities});
             }
         })
     });

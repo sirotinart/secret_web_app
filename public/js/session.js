@@ -19,21 +19,24 @@ function login()
         return;
     }
 
-    $.post('/login', {regCode:login.value, password:password.value}, function(data){
-        if(data['success']===false)
+    $.post('/api/login', {regCode:login.value, password:password.value}, function(data){
+        if(data.success===false)
         {
-            document.getElementById('log2').innerHTML=data['errorText'];
+            document.getElementById('log2').innerHTML=data.errorText;
         }
         else
         {
-            window.location=data['redirectUrl'];
-            console.log('fesrsreg00');
+            window.location=data.redirectUrl;
         }
-
-
     });
+}
 
-
-
-
+function logout()
+{
+    $.post('/api/logout', function(data) {
+        if(data.success)
+        {
+            window.location=data.redirectUrl;
+        }
+    });
 }

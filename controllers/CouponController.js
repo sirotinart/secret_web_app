@@ -1,0 +1,749 @@
+var mysql = require('mysql');
+var dbconfig = require('../config/dbconf');
+const fs = require('fs');
+var path = require('path');
+var Uploads = require('./UploadController')
+
+var couponController = {};
+
+couponController.getCoupon = function (req, res, next)
+{
+
+    // console.log(req.params);
+
+	req.response={};
+
+	if(!req.authorized)
+	{
+		req.response.success=false;
+		req.response.redirectUrl='/';
+		req.response.errorText='Не авторизован';
+		next();
+		return;
+	}
+
+    var connection=mysql.createConnection(dbconfig);
+
+    // console.log(req.body.couponId, req.session.sid);
+    connection.query('select * from COUPON where COUPON_ID = ? and SUPPLIER_ID = ?', [req.params.id, req.session.sid], function(err, rows){
+        if(err)
+        {
+            console.log(err.code)
+            req.response.success=false;
+            req.response.errorText='Ошибка обращения к БД!'
+            next;
+            return;
+        }
+
+        if(rows.length===1)
+        {
+            req.response.success=true;
+            req.response.data=rows[0];
+            req.response.data.promoImgUrl=path.join('../private', req.session.username) + '/' + req.params.id + '.jpg';
+        }
+        else
+        {
+            req.response.success=false;
+            req.response.errorText='Купон не найден!'
+        }
+        next();
+    });
+}
+
+couponController.getList = function (req, res, next)
+{
+    // console.log('couponController getList()');
+	req.response={};
+
+	if(!req.authorized)
+	{
+		req.response.success=false;
+		req.response.redirectUrl='/';
+		req.response.errorText='Не авторизован';
+		next();
+		return;
+	}
+    // console.log('couponController getList()', '1');
+
+
+    var connection = mysql.createConnection(dbconfig);
+    // console.log('couponController getList()', '2');
+
+    connection.query('select test.COUPON.COUPON_ID, SHORT_DESCRIPTION, CREATION_DATE, EXPIRATION_DATE, COUNT, ' +
+        '(select COUNT(*) from test.PURCHASE where test.COUPON.COUPON_ID = test.PURCHASE.COUPON_ID) as SELL_COUNT ' +
+        'from test.COUPON where SUPPLIER_ID = ?', [req.session.sid], function(err, rows, fields){
+        if(err)
+        {
+            console.log('couponController getList() error:', err.code);
+            req.response.success=false;
+            req.response.errorText='Ошибка обращения к БД!';
+        }
+        else
+        {
+            // console.log('couponController getList()', '3');
+
+            for(var i=0; i<rows.length; i++)
+            {
+                var date=rows[i]['CREATION_DATE'].getDate()+'.'+(rows[i]['CREATION_DATE'].getMonth()+1)+'.'+rows[i]['CREATION_DATE'].getFullYear();
+                var date2=rows[i]['EXPIRATION_DATE'].getDate()+'.'+(rows[i]['EXPIRATION_DATE'].getMonth()+1)+'.'+rows[i]['EXPIRATION_DATE'].getFullYear();
+                rows[i]['CREATION_DATE']=date;
+                rows[i]['EXPIRATION_DATE']=date2;
+            }
+            req.response.success=true;
+            req.response.data=rows;
+        }
+        // console.log('couponController getList()', '4');
+        next();
+    })
+}
+
+couponController.create = function (req,res,next)
+{
+	req.response={};
+
+	if(!req.authorized)
+	{
+		req.response.success=false;
+		req.response.redirectUrl='/';
+		req.response.errorText='Не авторизован';
+		next();
+		return;
+	}
+
+    validateData(req);
+
+    var connection = mysql.createConnection(dbconfig);
+
+    if(req.response.success===true)
+    {
+        saveCoupon(req, res, connection,function(){
+            if(req.response.success===false)
+            {
+                next();
+                return;
+            }
+            generateCodes(req,res, connection, function(){
+                if(req.response.success===false)
+                {
+                    next();
+                    return;
+                }
+                connection.commit(function(err){
+                    if(err)
+                    {
+                        req.response.success=false;
+                        req.response.errorText='Ошибка обращения к БД!';
+                        connection.rollback();
+                    }
+                    else
+                    {
+                        req.response.success=true;
+                        req.response.redirectUrl='/account';
+                    }
+                    connection.end();
+                    next();
+                });
+            });
+        });
+    }
+    else 
+    {
+        connection.end();
+        next();
+    }
+}
+
+couponController.update = function (req,res, next)
+{
+	req.response = {};
+
+	if(!req.authorized)
+	{
+		req.response.success=false;
+		req.response.redirectUrl='/';
+		req.response.errorText='Не авторизован';
+		next();
+		return;
+	}
+    //console.log(req.body);
+    validateData(req);
+    if(req.response.success===false)
+    {
+        console.log('Update error: data incorrect!');
+        next();
+        return;
+    }
+
+    isCouponActive(req, res, function(active){
+        if(req.response.success===false)
+        {
+            console.log('Update error: unknown coupon status!');
+
+            next();
+            return;
+            
+        }
+
+        if(active)
+        {
+            console.log('Update error: coupon is active!');
+            req.response.success=false;
+            req.response.errorText='Нельзя изменить активный купон!';
+            next();
+            
+            return;
+        }
+
+        var connection=mysql.createConnection(dbconfig);
+
+        connection.beginTransaction(function(err)
+        {
+            if(err)
+            {
+                console.log('Update error: cannot start transaction!');
+                req.response.success=false;
+                req.response.errorText='Ошибка обращения к БД!';
+                connection.end();
+                next();
+                return;
+            } 
+            deleteCouponCodes(req, res, connection, function(){
+                if(req.response.success===false)
+                {   
+                    console.log('Update error: error during deleting codes!');
+                    // connection.rollback();
+                    // connection.end();
+                    next();
+                    return;
+                }
+                updateCouponData(req, res, connection, function(){
+                    if(req.response.success===false)
+                    {
+                        console.log('Update error: error during updating coupon!');
+                        // connection.rollback();
+                        // connection.end();
+                        next();
+                        return;
+                    }
+                    generateCodes(req, res, connection,function(){
+                        if(req.response.success===false)
+                        {
+                            console.log('Update error: cannot generate coupons codes!');
+                            next();
+                            return;
+                        }
+                        else
+                        {
+                            connection.commit(function(err){
+                                if(err)
+                                {
+                                    console.log('Update error: cannot commit transaction!',err.code);
+                                    req.response.success=false;
+                                    req.response.errorText='Ошибка обращения к БД!';
+                                    connection.rollback();
+                                }
+                                else
+                                {
+                                    console.log('Update info: update successful!');
+                                    req.response.success=true;
+                                    req.response.redirectUrl='/account';
+
+
+                                    req.dest=path.join(__dirname, '..','private', req.session.username) + '/' + req.queryData.couponId + '.jpg'
+                                    if(req.body.promoImg.length!==0)
+                                    {
+                                        // console.log('there is promo img!');
+                                        req.src=req.files.img.path;
+                                        Uploads.moveImg(req, res, function(){});
+                                    }
+                                }
+                                connection.end();
+                                next();
+                            })
+                        }
+                    });
+                });
+            });
+        });
+    });
+}
+
+couponController.delete = function (req,res,next)
+{
+	req.response={};
+
+	if(!req.authorized)
+	{
+		req.response.success=false;
+		req.response.redirectUrl='/';
+		req.response.errorText='Не авторизован';
+		next();
+		return;
+	}
+
+    var connection=mysql.createConnection(dbconfig);
+    
+    connection.beginTransaction(function(err){
+        if(err)
+        {
+            console.log('couponController.delete() error:', err.code);
+            req.response.success=false;
+            req.response.errorText='Ошибка обращения к БД!';
+            connection.end();
+            next();
+            return;
+        }
+        isCouponActive(req,res, function(active){
+
+        	if(req.response.success===false)
+		    {
+		        console.log('Delete error: unknown coupon status!');
+		        connection.end();
+		        next();
+		        return;
+		    }
+
+		    if(active)
+		    {
+		        console.log('Delete error: coupon is active!');
+		        req.response.success=false;
+		        req.response.errorText='Нельзя изменить активный купон!';
+		        connection.end();
+		        next();
+		        return;
+		    }
+
+            connection.query('delete from COUPON ' +
+                'where COUPON.COUPON_ID = ? and COUPON.SUPPLIER_ID = ?',[req.body.couponId, req.session.sid], function(err, result){
+                if(err)
+                {
+                    console.log('del5', err.code, req.body.couponId, req.session.sid);
+                    req.response.success=false;
+                    req.response.errorText='Ошибка обращения к БД!';
+                    connection.rollback();
+                    connection.end();
+                    next();
+                    return;
+                    
+                }
+
+                connection.commit(function(err){
+                    if(err)
+                    {
+                        console.log('del6');
+                        req.response.success=false;
+                        req.response.errorText='Ошибка обращения к БД!';
+                        connection.rollback();
+                    }
+                    else
+                    {
+                        req.response.success=true;
+                        req.response.redirectUrl='/account';
+                    }
+                    connection.end();
+                    next();
+                });
+            });
+        });
+    });
+}
+
+function validateData(req)
+{
+    req.response={success: true};
+
+    var queryData = {};
+    req.response.errors = ['', '', '', '', '', '', '', '', ''];
+
+    if(req.body.shortDescr.length===0)
+    {
+        req.response.success=false;
+        req.response.errors[0]='Данное поле не может быть пустым!';
+    }
+    else
+    {
+        queryData.shortDescr=req.body.shortDescr;
+    }
+
+    if(req.body.fullDescr.length===0)
+    {
+        req.response.success=false;
+        req.response.errors[1]='Данное поле не может быть пустым!';
+    }
+    else
+    {
+        queryData.fullDescr=req.body.fullDescr;
+    }
+
+    var price=Number(req.body.price);
+    if(isNaN(price) || req.body.price.length===0)
+    {
+        req.response.success=false;
+        req.response.errors[3]='Некорректные данные!';
+    }
+    else
+    {
+        queryData.price=price;
+    }
+
+    var fullPrice=Number(req.body.fullPrice);
+    if(isNaN(fullPrice) || req.body.fullPrice.length===0)
+    {
+        req.response.success=false;
+        req.response.errors[2]='Некорректные данные!';
+    }
+    else
+    {
+        queryData.fullPrice=fullPrice;
+    }
+
+
+    var discount=Number(req.body.discount);
+    if(isNaN(discount) || req.body.discount.length===0)
+    {
+        req.response.success=false;
+        req.response.errors[4]='Некорректные данные!';
+    }
+    else
+    {
+        queryData.discount=discount;
+    }
+
+    var crDate=req.body.crDate.split('-',3);
+
+    if(crDate.length!==3 ||
+        (crDate[0].length===0 || crDate[1].length===0 || crDate[2].length===0) ||
+        (isNaN(Number(crDate[0])) || isNaN(Number(crDate[1])) || isNaN(Number(crDate[2]))))
+    {
+        req.response.success=false;
+        req.response.errors[5]='Неверная дата!';
+        crDateCorrect=false;
+    }
+    else
+    {
+        queryData.creatDate=crDate[0]+'-'+crDate[1]+'-'+crDate[2];
+    }
+
+    var expDate=req.body.expDate.split('-',3);
+    if(expDate.length!==3)
+    {
+        req.response.success=false;
+        req.response.errors[6]='Неверная дата!';
+    }
+    else
+    {
+        if(typeof (queryData.creatDate)!=='undefined')  //доделать нормальную проверку дат!
+        {
+            var now=new Date();
+            var exp=new Date(Number(expDate[0]),Number(expDate[1])-1,Number(expDate[2]));
+            if(exp.getTime()<=now.getTime())
+            {
+                req.response.success=false;
+                req.response.errors[6]='Дата окончания должна быть больше текущей!';
+            }
+            else
+            {
+                queryData.expDate=expDate[0]+'-'+expDate[1]+'-'+expDate[2];
+            }
+        }
+        else
+        {
+            req.response.success=false;
+            req.response.errors[5]='Некорректная дата начала акции!';
+        }
+        //console.log(now, exp);
+    }
+
+    var count=Number(req.body.couponsCount);
+    if(isNaN(count) || req.body.couponsCount.length===0)
+    {
+        req.response.success=false;
+        req.response.errors[7]='Некорректные данные!';
+    }
+    else
+    {
+        queryData.count=count;
+    }
+
+    if(req.method === 'PUT')
+    {
+        var couponId=Number(req.body.couponId);
+        if(isNaN(couponId) || req.body.couponId.length===0)
+        {
+            req.response.success=false;
+            req.response.errors[8]='Некорректные данные!';
+        }
+        else
+        {
+            queryData.couponId=couponId;
+        }
+    }
+
+    if(req.method === 'POST' )
+    {
+        if(req.body.addressList.length===0)
+        {
+            req.response.success=false;
+            req.response.errors[8]='Данное поле не может быть пустым!';
+        }
+        else
+        {
+            queryData.addressList=req.body.addressList;
+        }
+    }
+
+    if(req.response.success===true)
+    {
+        req.queryData=queryData;
+    }
+    else
+    {
+        req.response.errorText='Некорректные данные';
+    }
+}
+
+function saveCoupon(req, res, connection,next)
+{
+
+    connection.beginTransaction(function(err){
+        if(err){
+            req.response.success=false;
+            req.response.errorText='Ошибка обращения к БД!';
+            connection.end();
+            next();
+            return;
+        }
+
+        connection.query('insert into COUPON (PRICE, CREATION_DATE, EXPIRATION_DATE, SUPPLIER_ID, DESCRIPTION, FULL_PRICE, DISCOUNT, ' +
+            'SHORT_DESCRIPTION, COUNT, SHOP_ADDRESS_LIST) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [req.queryData.price,req.queryData.creatDate,req.queryData.expDate,req.session.sid,
+            req.queryData.fullDescr, req.queryData.discount, req.queryData.fullPrice, req.queryData.shortDescr, req.queryData.count, req.queryData.addressList],function(err, result){
+            if(err)
+            {
+                req.response.success=false;
+                req.response.errorText='Ошибка обращения к БД!';
+                connection.rollback();
+                connection.end();
+            }
+            else
+            {
+                req.response.success=true;
+                req.queryData.couponId=result.insertId;
+                req.dest=path.join(__dirname, '..', 'private', req.session.username) + '/' + result.insertId + '.jpg'
+                if(req.body.promoImg.length!==0)
+                {
+                    req.src=req.files.img.path;
+                }
+                else
+                {
+                    req.src=path.join(__dirname) + '../public/images/kdpv.jpg';
+                }
+                Uploads.moveImg(req, res, function(){});
+
+            }
+            next();
+        });
+    });
+}
+
+
+function makeid()
+{
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for( var i=0; i < 60; i++ )
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+    return text;
+}
+
+function generateCodes(req, res, connection, next)
+{
+    console.log('generateCodes()')
+    var control=0;
+    var code=[];
+    req.cycleError=false;
+    var filename=path.join(__dirname, '../private', req.session.username) +'/' + req.queryData.couponId + '.txt';
+    //console.log(filename);
+    var codesFile=fs.createWriteStream(filename, {flags:'w'});
+
+    for(var i=0; i<req.queryData.count; i++)
+    {
+        code[i]=makeid();
+        connection.query('insert into UNIQUE_CODE (CODE, COUPON_ID) values (?, ?)', [code[i],req.queryData.couponId], function(err, rows, fields){
+            control++;
+            if(err)
+            {
+                req.response.success=false;
+                req.response.errorText='Ошибка обращения к БД!';
+                req.cycleError=true;
+                if(control===req.queryData.count)
+                {
+                    connection.rollback();
+                    connection.end();
+                    next();
+                }
+            }
+            else
+            {
+                if(control===req.queryData.count)
+                {
+                    if(req.cycleError===true)
+                    {
+                        req.response.success=false;
+                        req.response.errorText='Ошибка обращения к БД!';
+                        connection.rollback();
+                        connection.end();
+                    }
+                    else
+                    {
+
+                        req.response.success=true;
+                    }
+                    next();
+                }
+            }
+
+        })
+        codesFile.write(code[i]+'\n', function(err, written, string){
+            if(i===req.queryData.count-1)
+            {
+                codeList.end();
+            }
+        });
+    }
+}
+
+couponController.getCodesList = function (req, res, next)
+{
+    
+
+	req.response={};
+
+	if(!req.authorized)
+	{
+		req.response.success=false;
+		req.response.redirectUrl='/';
+		req.response.errorText='Не авторизован';
+		next();
+		return;
+	}
+
+    var connection=mysql.createConnection(dbconfig);
+    var filename=path.join('../private', req.session.username) +'/' + req.params.id + '.txt';
+
+
+    connection.query('select CODE, test.COUPON.COUPON_ID, test.COUPON.SHORT_DESCRIPTION from test.UNIQUE_CODE join test.COUPON ' +
+        'on test.UNIQUE_CODE.COUPON_ID = test.COUPON.COUPON_ID ' +
+        'where test.COUPON.COUPON_ID = ? and test.COUPON.SUPPLIER_ID = ?',[req.params.id, req.session.sid], function(err, rows){
+        if(err)
+        {   
+            console.log('couponController getCodesList() error:', err.code)
+            req.response.success=false;
+            // req.response.redirectUrl='/';
+            req.response.errorText='Ошибка запроса';
+        }
+        else
+        {
+            if(rows.length!==0)
+            {
+                req.response.name='Коды купона "'+rows[0]['SHORT_DESCRIPTION']+'"';
+            }
+            else
+            {
+                req.response.name='Ошибка! Купон не найден!';
+            }
+            req.response.success=true;
+            req.response.codes=rows;
+            req.response.downloadLink=filename;
+        }
+        connection.end();
+        next();
+    });
+}
+
+function sendCodes(req,res,next)
+{
+    res.render('codeList.jade', {rows:req.response.codes, name:req.response.name, downloadLink:req.response.downloadLink});
+}
+
+
+function deleteCouponCodes(req, res, connection, next)
+{
+    connection.query('delete from UNIQUE_CODE where COUPON_ID = ?', [req.queryData.couponId], function(err){
+        if(err)
+        {
+            req.response.success=false;
+            req.response.errorText='Ошибка обращения к БД!';
+            connection.rollback();
+            connection.end();
+        }
+        next();
+    });
+}
+
+
+
+function isCouponActive(req, res, next)
+{
+    var connection=mysql.createConnection(dbconfig);
+    req.response={};
+
+    connection.query('select COUPON_ID, CREATION_DATE, EXPIRATION_DATE, SUPPLIER_ID from COUPON ' +
+             'where COUPON_ID = ? and SUPPLIER_ID = ?',[req.body.couponId, req.session.sid], function(err, rows){
+            if(err)
+            {
+                req.response.success = false;
+                req.response.errorText = 'Ошибка обращения к БД!';
+
+                connection.end();
+                next(false);
+                return;
+            }
+
+            if(rows.length===0)
+            {
+                req.response.success = false;
+                req.response.errorText = 'Купон не найден!';
+                
+                connection.end();
+                next(false);
+                return;
+            }
+
+            var now=new Date().getTime();
+            if(now>= rows[0]["CREATION_DATE"].getTime() && now<=rows[0]['EXPIRATION_DATE'].getTime())
+            {
+                req.response.success = true;
+                req.response.errorText = 'Нельзя удалить активную акцию!';
+                connection.end();
+                next(true);
+            }
+            else
+            {
+                req.response.success = true;
+                next(false);
+            }
+        });
+}
+
+function updateCouponData(req, res, connection, next)
+{
+    connection.query('update COUPON ' + 
+        'set PRICE = ?, CREATION_DATE = ?, EXPIRATION_DATE = ?, SUPPLIER_ID = ?, DESCRIPTION = ?, FULL_PRICE = ?, DISCOUNT = ?, SHORT_DESCRIPTION = ?, COUNT = ? ' +
+        'where COUPON_ID = ?', 
+        [req.queryData.price, req.queryData.creatDate, req.queryData.expDate, req.session.sid, req.queryData.fullDescr, req.queryData.fullPrice, req.queryData.discount, 
+        req.queryData.shortDescr, req.queryData.count, req.queryData.couponId], function(err, res){
+            if(err)
+            {   
+                console.log(err.code);
+                req.response.success=false;
+                req.response.errorText='Ошибка обращения к БД!';
+                connection.rollback();
+                connection.end(); 
+            }
+            next();
+        });
+} 
+
+module.exports = couponController;
