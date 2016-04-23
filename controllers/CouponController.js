@@ -417,15 +417,28 @@ function validateData(req)
     {
         req.response.success=false;
         req.response.errors[5]='Неверная дата!';
-        crDateCorrect=false;
+        // crDateCorrect=false;
     }
     else
     {
-        queryData.creatDate=crDate[0]+'-'+crDate[1]+'-'+crDate[2];
+        var now=new Date();
+        var crt=new Date(Number(crDate[0]),Number(crDate[1])-1,Number(crDate[2]));
+        if(crt.getTime()<=now.getTime())
+        {
+            req.response.success=false;
+            req.response.errors[5]='Дата начала должна быть больше текущей!';
+        }
+        else
+        {
+            queryData.creatDate=crDate[0]+'-'+crDate[1]+'-'+crDate[2];
+        }
+
     }
 
     var expDate=req.body.expDate.split('-',3);
-    if(expDate.length!==3)
+    if(expDate.length!==3 || 
+        (expDate[0].length===0 || expDate[1].length===0 || expDate[2].length===0) ||
+        (isNaN(Number(expDate[0])) || isNaN(Number(expDate[1])) || isNaN(Number(expDate[2]))))
     {
         req.response.success=false;
         req.response.errors[6]='Неверная дата!';
@@ -434,12 +447,13 @@ function validateData(req)
     {
         if(typeof (queryData.creatDate)!=='undefined')  //доделать нормальную проверку дат!
         {
-            var now=new Date();
+            // var now=new Date();
+            var crt=new Date(Number(crDate[0]),Number(crDate[1])-1,Number(crDate[2]));
             var exp=new Date(Number(expDate[0]),Number(expDate[1])-1,Number(expDate[2]));
-            if(exp.getTime()<=now.getTime())
+            if(exp.getTime()<=crt.getTime())
             {
                 req.response.success=false;
-                req.response.errors[6]='Дата окончания должна быть больше текущей!';
+                req.response.errors[6]='Дата окончания должна быть больше даты начала акции!';
             }
             else
             {
@@ -449,7 +463,7 @@ function validateData(req)
         else
         {
             req.response.success=false;
-            req.response.errors[5]='Некорректная дата начала акции!';
+            req.response.errors[6]='Некорректная дата начала акции!';
         }
         //console.log(now, exp);
     }
