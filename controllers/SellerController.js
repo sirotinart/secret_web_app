@@ -23,7 +23,7 @@ sellerController.getSeller = function (req,res,next)
     
     var connection=mysql.createConnection(dbconfig);
 
-    var filename=path.join(__dirname, '../private', req.session.username) + '/avatar.jpg';
+    var filename=path.join(__dirname, '../private', req.session.sid.toString(), 'img') + '/avatar.jpg';
    
     connection.query('select REG_NUMBER, NAME, CITY from SUPPLIER where SUPPLIER_ID = ?', [req.session.sid], function(err,rows){
         if(err)
@@ -53,7 +53,7 @@ sellerController.getSeller = function (req,res,next)
 	        {
 	            if(stats.isFile())
 	            {
-	                req.response.data.avatar=path.join('private', req.session.username) + '/avatar.jpg';
+	                req.response.data.avatar=path.join('private', req.session.sid.toString(), 'img') + '/avatar.jpg';
 	            }
 	            else
 	            {
@@ -153,7 +153,7 @@ function save(req,res,next)
         	return;
         }
         connection.query('insert into SUPPLIER (REG_NUMBER, PASSWORD, NAME, CITY) values (?, ?, ?, ?)', 
-        	[req.body.regCode,passHash,req.body.name,req.body.city], function(err){
+        	[req.body.regCode,passHash,req.body.name,req.body.city], function(err, result){
 
             if(err)
             {
@@ -181,8 +181,14 @@ function save(req,res,next)
                 {
                 	req.response.success=true;
 
-                    fs.mkdir(path.join(__dirname, '..','private', req.body.regCode), function (err){
-                        if(err) console.log(err);
+                    fs.mkdir(path.join(__dirname, '..','private', result.insertId), function (err){
+                        if(err) console.log('SellerController save() error:', err);
+                    });
+                    fs.mkdir(path.join(__dirname, '..','private', result.insertId, 'codes'), function (err){
+                        if(err) console.log('SellerController save() error:', err);
+                    });
+                    fs.mkdir(path.join(__dirname, '..','private', result.insertId, 'img'), function (err){
+                        if(err) console.log('SellerController save() error:', err);
                     });
                 }
                 connection.end();

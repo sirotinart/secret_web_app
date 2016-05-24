@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <title>Добавление нового купона</title>
     <link rel="stylesheet" href="/css/bootstrap.css">
+    <link rel="stylesheet" href="/css/jquery-ui.css">
     <script src="/js/jquery-1.12.0.js"></script>
+    <script src="/js/jquery-ui.js"></script>
     <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
     <script src="/js/coupon.js"></script>
     <script src="/js/profile.js"></script>
@@ -64,7 +66,6 @@
             <tr>
                 <td>
                     <table style="margin: auto; width: 500px" id="table2">
-
                         <tr>
                             <td style="width:50%">
                                 <div class="text-info" style="margin: 5px">Стоимость купона(руб):</div>
@@ -77,8 +78,26 @@
                                 <div class="text-warning" style="margin: 5px; height: 20px" id="err5"> </div>
                             </td>
                         </tr>
-
                     </table>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <div class="text-info" style="margin: 5px">Город проведения акции:</div>
+                    <input type="text" class="input-lg dropdown form-control" id="city" name="city" style="width: 100%; margin: 5px">
+                    <div class="text-warning" style="margin: 5px; height: 20px" id="err11"> </div>
+                </td>
+                <td>
+                    <div class="text-info" style="margin: 5px; margin-left: 20px">Категория:</div>
+
+                    <!-- <input type="text" class="input-lg dropdown form-control" id="city" name="city" style="width: 100%; margin: 5px"> -->
+                    <select name="category" id="category" class="input-lg form-control" style="width: 100%; margin: 5px;margin-left: 20px">
+                        <option value="Еда">Еда</option>
+                        <option value="Спорт">Спорт</option>
+                        <option value="Отдых">Отдых</option>
+                    </select>
+                    <div class="text-warning" style="margin: 5px; height: 20px;margin-left: 20px" id="err12"> </div>
                 </td>
             </tr>
 
@@ -94,6 +113,7 @@
                     <div class="text-warning" style="margin: 5px; margin-left: 20px; height: 20px" id="err8"> </div>
                 </td>
             </tr>
+
 
             <tr>
                 <td>
@@ -140,5 +160,15 @@
 <div class="panel-footer text-center" style="margin-top: 10px">
     Copyright © 2016 /dev/null. All rights reserved.
 </div>
+<script>
+    $(document).ready(function(){
+        $.get('/api/cities', function(response){
+            if(response.success===true)
+            {
+                $('#city').autocomplete({source: response.cities});
+            }
+        })
+    });
+</script>
 </body>
 </html>

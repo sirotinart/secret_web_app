@@ -7,6 +7,7 @@ var sessionControler={}
 
 sessionControler.checkAuth = function (req, res, next)
 {
+    // console.log('checkAuth():', req.session, req.session.id);
     var connection = mysql.createConnection(dbconfig);
     connection.query('select session_id from sessions where session_id = ?',[req.session.id], function(err,rows,fields){
         if(err)
@@ -76,7 +77,7 @@ sessionControler.sellerLogin = function (req, res, next)
     });
 };
 
-sessionControler.sellerLogout = function (req, res, next)
+sessionControler.logout = function (req, res, next)
 {
 	req.response={};
 	if(req.authorized===true)
@@ -88,15 +89,20 @@ sessionControler.sellerLogout = function (req, res, next)
 	next();
 }
 
+
 sessionControler.userLogin = function userLogin(req, res, next)
 {
     var passHash=crypto.createHash('sha256').update(req.body.password).digest('hex');
     var connection = mysql.createConnection(dbconfig);
 
+    req.response={}; 
+
+    // console.log(req.session);
+
     connection.query('select * from USER where LOGIN = ? and PASSWORD = ?', [req.body.login, passHash], function(err, rows){
         if(err)
         {
-            console.log('sessionControler userLogin() error:', err.code);
+            // console.log('sessionControler userLogin() error:', err.code);
             req.response.success=false;
             req.response.errorText='Ошибка запроса';
             connection.end();
@@ -104,9 +110,15 @@ sessionControler.userLogin = function userLogin(req, res, next)
             return;
         }
 
+        // console.log(rows);
         if(rows.length===1)
         {
             req.response.success=true;
+            req.response.user=rows[0];
+
+            req.session.hash=crypto.createHash('sha256').update(req.body.login).digest('hex');
+            req.session.uid=rows[0].USER_ID;
+            // console.log(req.session.uid);
         }
         else
         {

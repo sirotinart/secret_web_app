@@ -72,13 +72,13 @@ function showDescription(coupon)
     $.get('/api/coupons/'+couponId, function(response){
         if(response.success===true)
         {
-            $("#myModal").find(".modal-title").text(response.data['SHORT_DESCRIPTION'])
-            $("#myModal").find('#promoImg').attr('src', response.data['promoImgUrl']);
-            $("#myModal").find('#couponDescription').text(response.data['DESCRIPTION']);
-            $("#myModal").find('#couponDiscount').text(response.data['DISCOUNT']);
-            $("#myModal").find('#couponPrice').text(response.data['PRICE']);
-            $("#myModal").find('#couponFullPrice').text(response.data['FULL_PRICE']);
-            $("#myModal").find('#couponShops').text(response.data['SHOP_ADDRESS_LIST']);
+            $("#myModal").find(".modal-title").text(response.coupon['SHORT_DESCRIPTION'])
+            $("#myModal").find('#promoImg').attr('src', response.coupon['promoImgUrl']);
+            $("#myModal").find('#couponDescription').text(response.coupon['DESCRIPTION']);
+            $("#myModal").find('#couponDiscount').text(response.coupon['DISCOUNT']);
+            $("#myModal").find('#couponPrice').text(response.coupon['PRICE']);
+            $("#myModal").find('#couponFullPrice').text(response.coupon['FULL_PRICE']);
+            $("#myModal").find('#couponShops').text(response.coupon['SHOP_ADDRESS_LIST']);
             $("#myModal").modal();
         }
         else
@@ -94,25 +94,37 @@ function loadCouponData(btn)
     $.get('/api/coupons/'+couponId, function(response){
         if(response.success===true)
         {
-            var crDate=moment(response.data['CREATION_DATE']);
-            var expDate=moment(response.data['EXPIRATION_DATE']);
-            $("#modal2").find("#shortDescr").val(response.data['SHORT_DESCRIPTION'])
-            $("#modal2").find('#fullDescr').val(response.data['DESCRIPTION']);
-            $("#modal2").find('#discount').val(response.data['DISCOUNT']);
-            $("#modal2").find('#price').val(response.data['PRICE']);
-            $("#modal2").find('#fullPrice').val(response.data['FULL_PRICE']);
+            var crDate=moment(response.coupon['CREATION_DATE']);
+            var expDate=moment(response.coupon['EXPIRATION_DATE']);
+            $("#modal2").find("#shortDescr").val(response.coupon['SHORT_DESCRIPTION'])
+            $("#modal2").find('#fullDescr').val(response.coupon['DESCRIPTION']);
+            $("#modal2").find('#discount').val(response.coupon['DISCOUNT']);
+            $("#modal2").find('#price').val(response.coupon['PRICE']);
+            $("#modal2").find('#fullPrice').val(response.coupon['FULL_PRICE']);
             $("#modal2").find('#crDate').val(crDate.format('YYYY-MM-DD'));
             $("#modal2").find('#expDate').val(expDate.format('YYYY-MM-DD'));
-            $("#modal2").find('#couponsCount').val(response.data['COUNT']);
-            $("#modal2").find('#couponId').val(response.data['COUPON_ID']);
-            $("#modal2").find('#dataForm').attr('action', '/api/coupons/'+response.data['COUPON_ID']);
+            $("#modal2").find('#couponsCount').val(response.coupon['COUNT']);
+            $("#modal2").find('#couponId').val(response.coupon['COUPON_ID']);
+            $("#modal2").find('#dataForm').attr('action', '/api/coupons/'+response.coupon['COUPON_ID']);
             $("#modal2").modal();
+
+            $.get('/api/cities', function(response){
+            if(response.success===true)
+            {
+                response.cities.forEach(function(item, i ,arr){
+                    $('#city').append('<option value="'+item+'"'+">"+item+"</option>");
+                });
+                
+            }
+        })
         }
         else
         {
             $('#log1').html(response.errorText);
         }
     });
+
+
 }
 
 $(document).ready(function (e) {

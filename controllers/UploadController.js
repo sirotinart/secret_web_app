@@ -1,6 +1,15 @@
 const fs = require('fs');
 var path = require('path');
 
+var options = {
+    root: __dirname + '/../',
+    dotfiles: 'deny',
+    headers: {
+        'x-timestamp': Date.now(),
+        'x-sent': true
+    }
+};
+
 var uploadController={}
 
 
@@ -36,7 +45,7 @@ uploadController.moveImg = function moveImg(req, res, next)
     next();
 }
 
-uploadController.downloadCodes = function (req, res, next)
+uploadController.sendCodes = function (req, res, next)
 {
     if(req.acsessGranted===false)
     {
@@ -47,6 +56,19 @@ uploadController.downloadCodes = function (req, res, next)
     // console.log(req.url, req.originalUrl)
 
     res.download('.' + req.originalUrl);
+}
+
+uploadController.sendImg = function (req, res, next)
+{
+    // if(req.acsessGranted===false)
+    // {
+    //     res.render('errorPage.jade', {errorText: 'Acsess denied'});
+    //     return;
+    // }
+
+    // console.log(__dirname + '/..' + req.originalUrl)
+
+    res.sendFile(req.originalUrl, options);
 }
 
 module.exports=uploadController;

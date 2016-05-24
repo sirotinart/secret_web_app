@@ -17,7 +17,6 @@ addressController.getList = function (req,res, next)
         }
         else
         {
-
         	req.response.success=true;
             req.response.cities=[];
 

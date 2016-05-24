@@ -4,10 +4,13 @@
     <meta charset="UTF-8">
     <title>Аккаунт</title>
     <link rel="stylesheet" href="/css/bootstrap.css">  
+    <link rel="stylesheet" href="/css/jquery-ui.css">
     <script src="/js/jquery-1.12.0.js"></script>
     <script src="/js/jquery.tmpl.js"></script>
     <script src="/js/jquery-ui.js"></script>
     <script src="/js/bootstrap.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/css/bootstrap-select.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/js/bootstrap-select.min.js"></script>
     <script src="/js/moment.js"></script>
     <script src="/js/coupon.js"></script>
     <script src="/js/profile.js"></script>
@@ -35,7 +38,7 @@
 <div class="container">
     <h3 class="page-header2 col-md-5"> Список купонов</h3>
 </div>
-<div class="container-fluid">
+<div class="container">
     <div class="row">
         <div class="col-md-3 col-xs-3" >
             <h4>Название</h4>
@@ -60,7 +63,7 @@
         </div>
     </div>
 </div>
-<div class="container-fluid">
+<div class="container">
     <div id="table">
     </div>
 </div>
@@ -111,7 +114,7 @@
                     <img scc="" id="promoImg" class="img-responsive center-block">
                 </div>
                 <h4>Описание купона:</h4>
-                <div id="couponDescription"></div>
+                <textarea class="input-lg form-control" id="couponDescription" readonly="" style="resize: none; height: 200px"></textarea>
                 <h4>Скидка по купону:</h4>
                 <div id="couponDiscount"></div>
                 <h4>Стоимость со скидкой:</h4>
@@ -209,6 +212,29 @@
                                         </td>
                                     </tr>
                                 </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="text-info" style="margin: 5px">Город проведения акции:</div>
+
+                                <!-- <input type="text" class="input-lg dropdown form-control" id="city" name="city" style="width: 100%; margin: 5px"> -->
+                                <select name="city" id="city" class="input-lg form-control" style="width: 100%; margin: 5px">
+                                </select>
+                                <div class="text-warning" style="margin: 5px;" id="err11"> </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="text-info" style="margin: 5px">Категория:</div>
+
+                                <!-- <input type="text" class="input-lg dropdown form-control" id="city" name="city" style="width: 100%; margin: 5px"> -->
+                                <select name="category" id="category" class="input-lg form-control" style="width: 100%; margin: 5px">
+                                    <option value="Еда">Еда</option>
+                                    <option value="Спорт">Спорт</option>
+                                    <option value="Отдых">Отдых</option>
+                                </select>
+                                <div class="text-warning" style="margin: 5px;" id="err12"> </div>
                             </td>
                         </tr>
                         <tr>

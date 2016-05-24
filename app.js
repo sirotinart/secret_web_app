@@ -36,12 +36,11 @@ app.use(session({
   secret: 'some_secret',
   store: sessionStore,
   resave: false,
-  saveUninitialized: false,
-  cookie: {maxAge: 3600000}
+  saveUninitialized: false
 }));
 
 app.use(Sessions.checkAuth);
-app.use('/private/:id', Sessions.checkAccess);
+app.use('/private/:id/codes', Sessions.checkAccess);
 app.use('/', routes);
 
 // catch 404 and forward to error handler
