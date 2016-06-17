@@ -25,7 +25,7 @@ couponController.getCoupon = function (req, res, next)
     var connection=mysql.createConnection(dbconfig);
 
     // console.log(req.body.couponId, req.session.sid);
-    connection.query('select COUPON.*, SUPPLIER.SUPPLIER_ID from COUPON join SUPPLIER ' + 
+    connection.query('select COUPON.*, SUPPLIER.SUPPLIER_ID, SUPPLIER.NAME from COUPON join SUPPLIER ' + 
         'where COUPON.SUPPLIER_ID = SUPPLIER.SUPPLIER_ID and COUPON_ID = ?', 
         [req.params.id], function(err, rows){
         if(err)
@@ -40,6 +40,18 @@ couponController.getCoupon = function (req, res, next)
 
         if(rows.length===1)
         {
+            if(rows[0].CREATION_DATE)
+            {
+                var date=moment(rows[0].CREATION_DATE);
+                rows[0].CREATION_DATE=date.format('YYYY-MM-DD');
+            }
+
+            if(rows[0].EXPIRATION_DATE)
+            {
+                var date=moment(rows[0].EXPIRATION_DATE);
+                rows[0].EXPIRATION_DATE=date.format('YYYY-MM-DD');
+            }
+
             req.response.success=true;
             req.response.coupon=rows[0];
             req.response.coupon.promoImgUrl=path.join('../private', rows[0].SUPPLIER_ID.toString(), 'img') + 
@@ -74,9 +86,9 @@ couponController.getList = function (req, res, next)
     var connection = mysql.createConnection(dbconfig);
     // console.log('couponController getList()', '2');
 
-    connection.query('select test.COUPON.COUPON_ID, SHORT_DESCRIPTION, CREATION_DATE, EXPIRATION_DATE, COUNT, ' +
-        '(select COUNT(*) from test.PURCHASE where test.COUPON.COUPON_ID = test.PURCHASE.COUPON_ID) as SELL_COUNT ' +
-        'from test.COUPON where SUPPLIER_ID = ?', [req.session.sid], function(err, rows, fields){
+    connection.query('select COUPON.COUPON_ID, SHORT_DESCRIPTION, CREATION_DATE, EXPIRATION_DATE, COUNT, ' +
+        '(select COUNT(*) from PURCHASE where COUPON.COUPON_ID = PURCHASE.COUPON_ID) as SELL_COUNT ' +
+        'from COUPON where SUPPLIER_ID = ?', [req.session.sid], function(err, rows, fields){
         if(err)
         {
             console.log('couponController getList() error:', err.code);
@@ -363,7 +375,7 @@ couponController.delete = function (req,res,next)
 
 function validateData(req, next)
 {
-    console.log(req.body);
+    // console.log(req.body);
 
     req.response={success: true};
 
@@ -377,7 +389,16 @@ function validateData(req, next)
     }
     else
     {
-        queryData.shortDescr=req.body.shortDescr;
+        if(req.body.shortDescr.length>500)
+        {
+            req.response.success=false;
+            req.response.errors[0]='Введен слишком длинный текст!'; 
+        }
+        else
+        {
+            queryData.shortDescr=req.body.shortDescr;
+        }
+        
     }
 
     if(req.body.fullDescr.length===0)
@@ -385,13 +406,21 @@ function validateData(req, next)
         req.response.success=false;
         req.response.errors[1]='Данное поле не может быть пустым!';
     }
-    else
+    else 
     {
-        queryData.fullDescr=req.body.fullDescr;
+        if(req.body.fullDescr.length>5000)
+        {
+            req.response.success=false;
+            req.response.errors[1]='Введен слишком длинный текст!';
+        }
+        else
+        {
+            queryData.fullDescr=req.body.fullDescr;
+        }
     }
 
     var price=Number(req.body.price);
-    if(isNaN(price) || req.body.price.length===0)
+    if(isNaN(price) || req.body.price.length===0 || price<0 || price>100000)
     {
         req.response.success=false;
         req.response.errors[3]='Некорректные данные!';
@@ -402,7 +431,7 @@ function validateData(req, next)
     }
 
     var fullPrice=Number(req.body.fullPrice);
-    if(isNaN(fullPrice) || req.body.fullPrice.length===0)
+    if(isNaN(fullPrice) || req.body.fullPrice.length===0 || fullPrice<0 || fullPrice>100000)
     {
         req.response.success=false;
         req.response.errors[2]='Некорректные данные!';
@@ -414,7 +443,7 @@ function validateData(req, next)
 
 
     var discount=Number(req.body.discount);
-    if(isNaN(discount) || req.body.discount.length===0)
+    if(isNaN(discount) || req.body.discount.length===0 || discount>100 || discount<0)
     {
         req.response.success=false;
         req.response.errors[4]='Некорректные данные!';
@@ -436,7 +465,7 @@ function validateData(req, next)
     }
     else
     {
-        var now=new Date();
+        var now=new Д();
         var crt=new Date(Number(crDate[0]),Number(crDate[1])-1,Number(crDate[2]));
         if(crt.getTime()<=now.getTime())
         {
@@ -484,7 +513,7 @@ function validateData(req, next)
     }
 
     var count=Number(req.body.couponsCount);
-    if(isNaN(count) || req.body.couponsCount.length===0)
+    if(isNaN(count) || req.body.couponsCount.length===0 || count<0)
     {
         req.response.success=false;
         req.response.errors[7]='Некорректные данные!';
@@ -497,7 +526,7 @@ function validateData(req, next)
     if(req.method === 'PUT')
     {
         var couponId=Number(req.body.couponId);
-        if(isNaN(couponId) || req.body.couponId.length===0)
+        if(isNaN(couponId) || req.body.couponId.length===0 || couponId<0)
         {
             req.response.success=false;
             req.response.errors[8]='Некорректные данные!';
@@ -517,7 +546,16 @@ function validateData(req, next)
         }
         else
         {
-            queryData.addressList=req.body.addressList;
+            if(req.body.addressList.length>2000)
+            {
+                req.response.success=false;
+                req.response.errors[8]='Слишком много адресов!';
+            }
+            else
+            {
+                queryData.addressList=req.body.addressList;
+            }
+           
         }
     }
 
@@ -539,9 +577,9 @@ function validateData(req, next)
     {
         var connection=mysql.createConnection(dbconfig);
 
-        console.log('lol5\n');
+        // console.log('lol5\n');
         connection.query('select * from CATEGORY where NAME = ?', [req.body.category], function(err, rows){
-            console.log('lol4\n');
+            // console.log('lol4\n');
             if(err)
             {
                 console.log('checkCategory() error:', err.code);
@@ -562,7 +600,7 @@ function validateData(req, next)
             }
             
             connection.query('select * from ADDRESS where CITY = ?', [req.body.city], function(err, rows){
-                console.log('lol5\n');
+                // console.log('lol5\n');
                 if(err)
                 {
                     console.log('checkCity() error:', err.code);
@@ -593,7 +631,7 @@ function validateData(req, next)
                     req.response.errorText='Некорректные данные';
                 }
 
-                console.log('lol1', req.queryData,req.response, '\n');
+                // console.log('lol1', req.queryData,req.response, '\n');
                 next();
             });
         });
@@ -610,7 +648,7 @@ function validateData(req, next)
 function saveCoupon(req, res, connection,next)
 {
 
-    console.log(req.queryData);
+    // console.log(req.queryData);
 
     connection.beginTransaction(function(err){
         if(err){
@@ -666,7 +704,7 @@ function makeid()
 
 function generateCodes(req, res, connection, next)
 {
-    console.log('generateCodes()')
+    // console.log('generateCodes()')
     var control=0;
     var code=[];
     req.cycleError=false;
@@ -841,7 +879,7 @@ function updateCouponData(req, res, connection, next)
         'SHORT_DESCRIPTION = ?, COUNT = ?, CITY = ?, CATEGORY = ? ' +
         'where COUPON_ID = ?', 
         [req.queryData.price, req.queryData.creatDate, req.queryData.expDate, req.session.sid, req.queryData.fullDescr, req.queryData.fullPrice, req.queryData.discount, 
-        req.queryData.shortDescr, req.queryData.count, req.queryData.couponId, req.queryData.city, req.queryData.category], function(err, res){
+        req.queryData.shortDescr, req.queryData.count, req.queryData.city, req.queryData.category, req.queryData.couponId], function(err, res){
             if(err)
             {   
                 console.log(err.code);

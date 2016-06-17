@@ -26,7 +26,7 @@ uploadController.uploadAvatar = function(req, res, next)
 
     //console.log(req.files);
     req.src=req.files.avatar.path;
-    req.dest=path.join(__dirname, '..', 'private', req.session.username) + '/avatar.jpg';
+    req.dest=path.join(__dirname, '..', 'private', req.session.sid.toString(), 'img') + '/avatar.jpg';
     uploadController.moveImg(req, res, function(){
     	next();
     });
@@ -34,7 +34,7 @@ uploadController.uploadAvatar = function(req, res, next)
 
 uploadController.moveImg = function moveImg(req, res, next)
 {
-    console.log(req.src, req.dest);
+    // console.log(req.src, req.dest);
     fs.rename(req.src, req.dest, function(err){
         if(err)
         {

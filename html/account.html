@@ -15,6 +15,15 @@
     <script src="/js/coupon.js"></script>
     <script src="/js/profile.js"></script>
     <script src="/js/session.js"></script>
+
+    <style type="text/css" media="screen">
+        .vertical-align {
+            float:none;
+            display:inline-block;
+            vertical-align:middle;
+            margin-right:-4px;
+        }   
+    </style>
 </head>
 <body>
 <div class="container">
@@ -68,26 +77,26 @@
     </div>
 </div>
 <script id="listTempl" type="text/x-jquery-tmpl">
-        <div class="row" style="margin: 5px" data-id="" onmouseout="$(this).css('background-color', '#ffffff')" onmouseover="$(this).css('background-color', '#D9D9D9')">
-            <div class="col-md-3 col-xs-3" onclick="showDescription($(this))">
+        <div class="row" style="padding: 5px" data-id="" onmouseout="$(this).css('background-color', '#ffffff')" onmouseover="$(this).css('background-color', '#D9D9D9')">
+            <div class="col-md-3 col-xs-3 vertical-align" onclick="showDescription($(this))">
                 ${SHORT_DESCRIPTION}
             </div>
-            <div class="col-md-2 col-xs-2 text-center" onclick="showDescription($(this))">
+            <div class="col-md-2 col-xs-2 text-center vertical-align" onclick="showDescription($(this))">
                 ${CREATION_DATE}
             </div>
-            <div class="col-md-2 col-xs-2 text-center" onclick="showDescription($(this))">
+            <div class="col-md-2 col-xs-2 text-center vertical-align" onclick="showDescription($(this))">
                 ${EXPIRATION_DATE}
             </div>
-            <div class="col-md-2 col-xs-2 text-center" onclick="showDescription($(this))">
+            <div class="col-md-2 col-xs-2 text-center vertical-align" onclick="showDescription($(this))">
                 ${SELL_COUNT}/${COUNT}
             </div>
-            <div class="col-md-1 col-xs-1" style="padding: 0 5px">
+            <div class="col-md-1 col-xs-1 vertical-align" style="padding: 0 5px">
                 <button id="codeBtn" class="btn btn-xs btn-primary btn-block" onclick="downloadCodes($(this))">Коды</button>
             </div>
-            <div class="col-md-1 col-xs-1" style="padding: 0 5px">
+            <div class="col-md-1 col-xs-1 vertical-align" style="padding: 0 5px">
                 <button id="editBtn" class="btn btn-xs btn-primary btn-block" onclick="loadCouponData($(this))">Изменить</button>
             </div>
-            <div class="col-md-1 col-xs-1" style="padding: 0 5px">
+            <div class="col-md-1 col-xs-1 vertical-align" style="padding: 0 5px">
                 <button id="removeBtn" class="btn btn-xs btn-warning btn-block" onClick="deleteCoupon($(this))">Удалить</button>
             </div>
         </div>
@@ -176,7 +185,7 @@
                         </tr>
                         <tr>
                             <td>
-                                <input type="number" min="1" max="100000" class="input-lg form-control" id="fullPrice" name="fullPrice" style="width: 100%; margin: 5px" placeholder="1000">
+                                <input type="number" min="0" max="100000" class="input-lg form-control" id="fullPrice" name="fullPrice" style="width: 100%; margin: 5px" placeholder="1000">
                             </td>
                         </tr>
                         <tr>
@@ -221,7 +230,7 @@
                                 <!-- <input type="text" class="input-lg dropdown form-control" id="city" name="city" style="width: 100%; margin: 5px"> -->
                                 <select name="city" id="city" class="input-lg form-control" style="width: 100%; margin: 5px">
                                 </select>
-                                <div class="text-warning" style="margin: 5px;" id="err11"> </div>
+                                <div class="text-warning" style="margin: 5px;" id="err10"> </div>
                             </td>
                         </tr>
                         <tr>
@@ -234,7 +243,7 @@
                                     <option value="Спорт">Спорт</option>
                                     <option value="Отдых">Отдых</option>
                                 </select>
-                                <div class="text-warning" style="margin: 5px;" id="err12"> </div>
+                                <div class="text-warning" style="margin: 5px;" id="err11"> </div>
                             </td>
                         </tr>
                         <tr>

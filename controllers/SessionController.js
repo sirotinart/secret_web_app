@@ -134,7 +134,7 @@ sessionControler.checkAccess = function(req, res, next)
 {
     if(req.authorized)
     {
-        if(req.params.id===req.session.username)
+        if(req.params.id===req.session.sid.toString())
         {
             req.acsessGranted=true;
             // console.log('checkAcsess(): ', req.url, req.session.username, 'acsess granted!');

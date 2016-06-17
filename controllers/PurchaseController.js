@@ -20,8 +20,8 @@ purchaseController.getUserPurchases = function (req, res, next)
 
 	var connection = mysql.createConnection(dbconfig);
 
-	connection.query('select DATE, CODE, USER_ID, COUPON.* from test.PURCHASE '+
-		'join test.COUPON where PURCHASE.COUPON_ID = COUPON.COUPON_ID and USER_ID = ?', 
+	connection.query('select DATE, CODE, USER_ID, COUPON.*, SUPPLIER.NAME from PURCHASE '+
+		'join COUPON join SUPPLIER where PURCHASE.COUPON_ID = COUPON.COUPON_ID and COUPON.SUPPLIER_ID=SUPPLIER.SUPPLIER_ID and USER_ID = ?', 
 		[req.params.id], function(err, rows){
 		if(err)
 		{
@@ -34,6 +34,18 @@ purchaseController.getUserPurchases = function (req, res, next)
 		}
 
 		rows.forEach(function(item, i, arr){
+				if(item.CREATION_DATE)
+                {
+                    var date=moment(item.CREATION_DATE);
+                    item.CREATION_DATE=date.format('YYYY-MM-DD');
+                }
+
+                if(item.EXPIRATION_DATE)
+                {
+                    var date=moment(item.EXPIRATION_DATE);
+                    item.EXPIRATION_DATE=date.format('YYYY-MM-DD');
+                }
+
                 if(item.DATE)
                 {
                     var date=moment(item.DATE);

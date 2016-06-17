@@ -75,9 +75,9 @@ function showDescription(coupon)
             $("#myModal").find(".modal-title").text(response.coupon['SHORT_DESCRIPTION'])
             $("#myModal").find('#promoImg').attr('src', response.coupon['promoImgUrl']);
             $("#myModal").find('#couponDescription').text(response.coupon['DESCRIPTION']);
-            $("#myModal").find('#couponDiscount').text(response.coupon['DISCOUNT']);
-            $("#myModal").find('#couponPrice').text(response.coupon['PRICE']);
-            $("#myModal").find('#couponFullPrice').text(response.coupon['FULL_PRICE']);
+            $("#myModal").find('#couponDiscount').text(response.coupon['DISCOUNT']+'%');
+            $("#myModal").find('#couponPrice').text(response.coupon['PRICE']+' рублей');
+            $("#myModal").find('#couponFullPrice').text(response.coupon['FULL_PRICE']+' рублей');
             $("#myModal").find('#couponShops').text(response.coupon['SHOP_ADDRESS_LIST']);
             $("#myModal").modal();
         }

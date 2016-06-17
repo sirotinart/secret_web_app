@@ -118,6 +118,7 @@ router.put('/api/coupons/:id', multipartMiddleware, Coupons.update, function(req
 
 router.get('/api/coupons', Coupons.getAll, function(req, res){res.send(req.response);});
 
+
 router.get('/private/:id/codes/*', Uploads.sendCodes);
 
 router.get('/private/:id/img/*', Uploads.sendImg);

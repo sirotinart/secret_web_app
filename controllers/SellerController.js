@@ -28,7 +28,7 @@ sellerController.getSeller = function (req,res,next)
     connection.query('select REG_NUMBER, NAME, CITY from SUPPLIER where SUPPLIER_ID = ?', [req.session.sid], function(err,rows){
         if(err)
         {
-        	console.log('getSeller() error:', err.code);
+        	console.log('getSeller() error1:', err.code);
             req.response.success=false;
             req.response.errorText='Ошибка обращения к БД!';
             connection.end();
@@ -46,7 +46,7 @@ sellerController.getSeller = function (req,res,next)
         fs.stat(filename, function(err, stats){
 	        if(err) 
 	        {
-	        	console.log('getSeller() error:', err.code);
+	        	console.log('getSeller() error2:', err.code);
 	            req.response.data.avatar='/images/default_avatar.jpg';
 	        }
 	        else
@@ -175,19 +175,18 @@ function save(req,res,next)
                 	req.response.success=false;
                 	req.response.errorText='Ошибка запроса';
                 	connection.rollback();
-                	
                 }
                 else
                 {
                 	req.response.success=true;
 
-                    fs.mkdir(path.join(__dirname, '..','private', result.insertId), function (err){
+                    fs.mkdir(path.join(__dirname, '..','private', result.insertId.toString()), function (err){
                         if(err) console.log('SellerController save() error:', err);
                     });
-                    fs.mkdir(path.join(__dirname, '..','private', result.insertId, 'codes'), function (err){
+                    fs.mkdir(path.join(__dirname, '..','private', result.insertId.toString(), 'codes'), function (err){
                         if(err) console.log('SellerController save() error:', err);
                     });
-                    fs.mkdir(path.join(__dirname, '..','private', result.insertId, 'img'), function (err){
+                    fs.mkdir(path.join(__dirname, '..','private', result.insertId.toString(), 'img'), function (err){
                         if(err) console.log('SellerController save() error:', err);
                     });
                 }
